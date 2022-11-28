@@ -1,10 +1,18 @@
-import { Observable } from 'rxjs';
+import { name$, storeDataOnServer, storeDataOnServerError } from "./external";
 
-const someObservable$ = new Observable<string>(subscriber => {
-  subscriber.next('Alice');
-  subscriber.next('Ben');
-  subscriber.next('Charlie');
-  subscriber.complete();
+name$.subscribe((value) => {
+    console.log(value);
 });
 
-someObservable$.subscribe(value => console.log(value));
+storeDataOnServer("Some value").subscribe((value) => {
+    console.log(value);
+});
+
+storeDataOnServerError("Some value").subscribe({
+    next: (value) => {
+        console.log(value);
+    },
+    error: (err) => {
+        console.log("Error when saving:", err.message);
+    },
+});
