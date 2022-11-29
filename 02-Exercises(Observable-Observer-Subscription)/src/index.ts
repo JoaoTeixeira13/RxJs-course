@@ -7,6 +7,8 @@ const observable$ = new Observable<string>((subscriber) => {
         subscriber.next("Charlize");
         subscriber.complete();
     }, 2000);
+
+    //prevent memory leaks
     return () => {
         console.log("Teardown");
     };
