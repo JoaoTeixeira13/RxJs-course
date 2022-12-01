@@ -1,4 +1,4 @@
-import { Observable, of, from, fromEvent } from "rxjs";
+import { Observable, of, from, fromEvent, timer, interval } from "rxjs";
 
 //of
 
@@ -75,7 +75,6 @@ const triggerClick$ = new Observable<MouseEvent>((subscriber) => {
     };
     triggerButton.addEventListener("click", clickHandlerFn);
 
-    
     // teardown logic, prevent memory leaks (without this the event call back keeps executing)
 
     return () => {
@@ -90,4 +89,73 @@ const subscription2 = triggerClick$.subscribe((event) =>
 setTimeout(() => {
     console.log("Unsubscribe");
     subscription2.unsubscribe();
+}, 5000);
+
+//timer
+
+console.log("timer section started");
+
+const timerSubscription = timer(2000).subscribe({
+    next: (value) => console.log(value),
+    complete: () => console.log("timer completed"),
+});
+
+setTimeout(() => {
+    timerSubscription.unsubscribe();
+}, 1000);
+
+const timer$ = new Observable<number>((subscriber) => {
+    const timeoutId = setTimeout(() => {
+        console.log("Timeout.");
+        subscriber.next(0);
+        subscriber.complete();
+    }, 2000);
+
+    return () => {
+        clearTimeout(timeoutId);
+    };
+});
+
+const timer$Subscription = timer$.subscribe({
+    next: (value) => console.log(value),
+    complete: () => console.log("timer$ completed"),
+});
+
+setTimeout(() => {
+    timer$Subscription.unsubscribe();
+    console.log("unsubscribe from timer$Subscription");
+}, 1000);
+
+//interval
+
+const intervalSubscription = interval(1000).subscribe({
+    next: (value) => console.log(value),
+    complete: () => console.log("timer$ completed"),
+});
+
+setTimeout(() => {
+    intervalSubscription.unsubscribe();
+    console.log("unsubscribe from timer$Subscription");
+}, 5000);
+
+const interval$ = new Observable<number>((subscriber) => {
+    let counter = 0;
+    const intervalId = setInterval(() => {
+        console.log("Timeout.");
+        subscriber.next(counter++);
+    }, 1000);
+
+    return () => {
+        clearInterval(intervalId);
+    };
+});
+
+const interval$Subscription = interval$.subscribe({
+    next: (value) => console.log(value),
+    complete: () => console.log("interval$Subscription  completed"),
+});
+
+setTimeout(() => {
+    interval$Subscription.unsubscribe();
+    console.log("unsubscribe from interval$Subscription");
 }, 5000);
