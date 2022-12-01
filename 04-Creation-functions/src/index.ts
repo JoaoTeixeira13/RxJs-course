@@ -1,4 +1,13 @@
-import { Observable, of, from, fromEvent, timer, interval } from "rxjs";
+import {
+    Observable,
+    of,
+    from,
+    fromEvent,
+    timer,
+    interval,
+    forkJoin,
+} from "rxjs";
+import { ajax, AjaxResponse } from "rxjs/ajax";
 
 //of
 
@@ -159,3 +168,49 @@ setTimeout(() => {
     interval$Subscription.unsubscribe();
     console.log("unsubscribe from interval$Subscription");
 }, 5000);
+
+//forkJoin
+
+const randomName$ = ajax("https://random-data-api.com/api/name/random_name");
+
+const randomNation$ = ajax(
+    "https://random-data-api.com/api/nation/random_nation"
+);
+
+const randomFood$ = ajax("https://random-data-api.com/api/food/random_food");
+
+randomName$.subscribe((ajaxResponse: AjaxResponse<any>) =>
+    console.log(ajaxResponse.response.first_name)
+);
+randomNation$.subscribe((ajaxResponse: AjaxResponse<any>) =>
+    console.log(ajaxResponse.response.capital)
+);
+randomFood$.subscribe((ajaxResponse: AjaxResponse<any>) =>
+    console.log(ajaxResponse.response.dish)
+);
+
+forkJoin([randomName$, randomNation$, randomFood$]).subscribe(
+    ([nameAjax, nationAjax, foodAjax]: AjaxResponse<any>[]) => {
+        console.log(
+            `${nameAjax.response.first_name} is from ${nationAjax.response.capital} and loves to eat ${foodAjax.response.dish}.`
+        );
+    }
+);
+
+const a$ = new Observable((subscriber) => {
+    setTimeout(() => {
+        subscriber.next("Aranthea");
+        subscriber.complete();
+    }, 3000);
+});
+
+const b$ = new Observable((subscriber) => {
+    setTimeout(() => {
+        subscriber.error("She crashed.");
+    }, 3000);
+});
+
+forkJoin([a$, b$]).subscribe({
+    next: (value) => console.log(value),
+    error: (err) => console.log("Error", err),
+});
