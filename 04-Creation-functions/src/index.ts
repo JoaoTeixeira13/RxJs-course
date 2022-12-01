@@ -6,6 +6,7 @@ import {
     timer,
     interval,
     forkJoin,
+    combineLatest,
 } from "rxjs";
 import { ajax, AjaxResponse } from "rxjs/ajax";
 
@@ -214,3 +215,27 @@ forkJoin([a$, b$]).subscribe({
     next: (value) => console.log(value),
     error: (err) => console.log("Error", err),
 });
+
+//combineLatest()
+
+const temperatureInput = document.getElementById("temperature-input");
+const conversionDropdown = document.getElementById("conversion-dropdown");
+const resultText = document.getElementById("result-text");
+
+const temperatureInputEvent$ = fromEvent(temperatureInput, "input");
+const conversionInputEvent$ = fromEvent(conversionDropdown, "input");
+
+combineLatest([temperatureInputEvent$, conversionInputEvent$]).subscribe(
+    ([temperatureInputEvent, conversionInputEvent]: any) => {
+        const temperature = Number(temperatureInputEvent.target["value"]);
+        const conversion = conversionInputEvent.target["value"];
+
+        let result: number;
+        if (conversion === "f-to-c") {
+            result = (temperature - 32) * (5 / 9);
+        } else if (conversion === "c-to-f") {
+            result = temperature * (9 / 5) + 32;
+        }
+        resultText.innerText = String(result);
+    }
+);
