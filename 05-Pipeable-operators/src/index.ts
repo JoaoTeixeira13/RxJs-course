@@ -1,4 +1,4 @@
-import { forkJoin, filter, Observable, map } from "rxjs";
+import { forkJoin, filter, Observable, map, of, tap } from "rxjs";
 import { ajax } from "rxjs/ajax";
 
 //filter
@@ -50,3 +50,13 @@ forkJoin([randomFirstName$, randomCapital$, randomDish$]).subscribe(
     ([firstName, capital, dish]) =>
         console.log(`${firstName} is from ${capital} and likes to eat ${dish}.`)
 );
+
+//tap ( logs information inside the Observable)
+
+of(1, 7, 4, 8, 9, 2)
+    .pipe(
+        filter((value: number) => value > 5),
+        tap((value: number) => console.log("Spy:", value)),
+        map((value: number) => value * 2)
+    )
+    .subscribe((value: number) => console.log("Output:", value));
