@@ -1,4 +1,15 @@
-import { forkJoin, filter, Observable, map, of, tap } from "rxjs";
+import {
+    forkJoin,
+    filter,
+    Observable,
+    map,
+    of,
+    tap,
+    fromEvent,
+    debounceTime,
+    catchError,
+    EMPTY,
+} from "rxjs";
 import { ajax } from "rxjs/ajax";
 
 //filter
@@ -60,3 +71,26 @@ of(1, 7, 4, 8, 9, 2)
         map((value: number) => value * 2)
     )
     .subscribe((value: number) => console.log("Output:", value));
+
+//debounceTime
+
+const sliderInput = document.querySelector("input#slider");
+
+fromEvent(sliderInput, "input")
+    .pipe(
+        debounceTime(2000),
+        map((event: any) => event.target["value"])
+    )
+    .subscribe((value) => console.log(value));
+
+//catchError
+
+const failingHttpRequest$ = new Observable((subscriber) => {
+    setTimeout(() => {
+        subscriber.error(new Error("Timeout"));
+    }, 3000);
+});
+
+failingHttpRequest$
+    .pipe(catchError((error) => EMPTY))
+    .subscribe((value) => console.log(value));
