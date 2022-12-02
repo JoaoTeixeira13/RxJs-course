@@ -9,6 +9,7 @@ import {
     debounceTime,
     catchError,
     EMPTY,
+    concatMap,
 } from "rxjs";
 import { ajax } from "rxjs/ajax";
 
@@ -93,4 +94,32 @@ const failingHttpRequest$ = new Observable((subscriber) => {
 
 failingHttpRequest$
     .pipe(catchError((error) => EMPTY))
+    .subscribe((value) => console.log(value));
+
+//------------------Flattening Operators------------------
+
+//static
+
+const source$ = new Observable((subscriber) => {
+    setTimeout(() => subscriber.next("source$: A"), 2000);
+    setTimeout(() => subscriber.next("source$: B"), 5000);
+});
+
+source$
+    .pipe(concatMap((value) => of(1, 2)))
+    .subscribe((value) => console.log(value));
+
+// dynamic
+
+const endpointInput: HTMLInputElement =
+    document.querySelector("input#endpoint");
+const fetchButton = document.querySelector("button#fetch");
+
+fromEvent(fetchButton, "click")
+    .pipe(
+        map(() => endpointInput.value),
+        concatMap((value) =>
+            ajax(`https://random-data-api.com/api/${value}/random_${value}`)
+        )
+    )
     .subscribe((value) => console.log(value));
